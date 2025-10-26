@@ -1,0 +1,13 @@
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\main\KanbanApp.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\EstadoTarea.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\Etiqueta.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\FechaLimite.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\Prioridad.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\Proyecto.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\Tarea.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\Usuario.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\service\AuthService.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\service\ProjectService.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\service\TaskService.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\storage\Repository.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\util\ConsoleUtil.java
