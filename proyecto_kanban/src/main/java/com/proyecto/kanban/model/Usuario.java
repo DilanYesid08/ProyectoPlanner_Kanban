@@ -3,7 +3,6 @@ package com.proyecto.kanban.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Representa un usuario del sistema.
@@ -16,8 +15,14 @@ import java.util.UUID;
  * Nota: esta clase es un POJO simple usado en memoria durante la simulación
  * por consola. No implementa serialización ni guarda datos en disco.
  */
-public class Usuario {
-    private final String id;
+/**
+ * Usuario del sistema.
+ *
+ * Ahora extiende {@link BaseEntity} para mostrar herencia real (keyword `extends`).
+ * Al heredar, {@code Usuario} adquiere el campo {@code id} y el método {@code getId()}
+ * definidos en {@code BaseEntity} sin necesidad de declararlos aquí.
+ */
+public class Usuario extends BaseEntity {
     private String nombre;
     private String email;
     private final List<String> projectIds; // referencias a proyectos por id
@@ -33,7 +38,10 @@ public class Usuario {
      * @param email email del usuario (usado para login en esta simulación)
      */
     public Usuario(String nombre, String email) {
-        this.id = UUID.randomUUID().toString();
+        // El identificador `id` se inicializa automáticamente en la clase
+        // base {@link BaseEntity} mediante un inicializador de campo.
+        // No es necesario llamar a `super()` explícitamente porque el
+        // compilador invoca el constructor no-args del padre implícitamente.
         this.nombre = nombre != null ? nombre : "";
         this.email = email != null ? email : "";
         this.projectIds = new ArrayList<>();
@@ -66,7 +74,7 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return String.format("Usuario{id=%s, nombre='%s', email='%s'}", id, nombre, email);
+        return String.format("Usuario{id=%s, nombre='%s', email='%s'}", getId(), nombre, email);
     }
 
     @Override
@@ -74,11 +82,11 @@ public class Usuario {
         if (this == o) return true;
         if (!(o instanceof Usuario)) return false;
         Usuario usuario = (Usuario) o;
-        return id.equals(usuario.id);
+        return getId().equals(usuario.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(getId());
     }
 }

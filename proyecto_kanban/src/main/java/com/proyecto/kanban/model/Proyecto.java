@@ -12,13 +12,23 @@ import java.util.List;
  *
  * Nota: se ha retirado la serialización para mantener el código más simple para estudiantes.
  */
-public class Proyecto {
+/**
+ * Representa un proyecto que contiene múltiples tareas.
+ *
+ * Ahora {@code Proyecto} extiende {@link BaseEntity} para heredar un identificador
+ * único {@code id}. Esto es un ejemplo de herencia (extends) aplicado con mínimo
+ * impacto en la lógica existente.
+ */
+public class Proyecto extends BaseEntity {
     private String nombre;
     private String descripcion;
     private List<Tarea> tareas;
     private List<Usuario> miembros;
 
     public Proyecto(String nombre, String descripcion) {
+        // El identificador `id` proviene de {@link BaseEntity} y se inicializa
+        // automáticamente en la declaración del campo en la clase base. No
+        // es necesario invocar `super()` de forma explícita.
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tareas = new ArrayList<>();

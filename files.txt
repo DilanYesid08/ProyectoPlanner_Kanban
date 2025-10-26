@@ -1,4 +1,5 @@
 C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\main\KanbanApp.java
+C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\BaseEntity.java
 C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\EstadoTarea.java
 C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\Etiqueta.java
 C:\Users\USUARIO\Desktop\ProyectoPlanner_Kanban\ProyectoPlanner_Kanban\proyecto_kanban\src\main\java\com\proyecto\kanban\model\FechaLimite.java

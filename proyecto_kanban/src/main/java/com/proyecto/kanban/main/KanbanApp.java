@@ -36,9 +36,9 @@ public class KanbanApp {
         while (true) {
             System.out.println("=== Kanban Console - Bienvenido ===");
             System.out.println("1) Registrarse");
-            System.out.println("2) Iniciar sesión");
+            System.out.println("2) Iniciar sesion");
             System.out.println("0) Salir");
-            int opt = ConsoleUtil.readInt("Seleccione una opción");
+            int opt = ConsoleUtil.readInt("Seleccione una opcion");
             if (opt == 0) {
                 System.out.println("Saliendo...");
                 break;
@@ -71,13 +71,13 @@ public class KanbanApp {
             System.out.println("1) Crear proyecto");
             System.out.println("2) Ver y gestionar proyectos");
             System.out.println("3) Crear tarea en proyecto");
-            System.out.println("0) Cerrar sesión");
-            int opt = ConsoleUtil.readInt("Seleccione una opción");
+            System.out.println("0) Cerrar sesion");
+            int opt = ConsoleUtil.readInt("Seleccione una opcion");
             if (opt == 0) break;
 
             if (opt == 1) {
                 String nombre = ConsoleUtil.readLine("Nombre del proyecto");
-                String desc = ConsoleUtil.readLine("Descripción");
+                String desc = ConsoleUtil.readLine("Descripcion");
                 Proyecto p = pService.createProject(nombre, desc, user);
                 System.out.println("Proyecto creado: " + p.getNombre());
                 ConsoleUtil.pause();
@@ -92,10 +92,10 @@ public class KanbanApp {
                     continue;
                 }
                 for (int i = 0; i < list.size(); i++) System.out.println((i+1) + ") " + list.get(i).getNombre());
-                int sel = ConsoleUtil.readInt("Seleccione proyecto para gestionar (número) o 0 para volver") - 1;
+                int sel = ConsoleUtil.readInt("Seleccione proyecto para gestionar (numero) o 0 para volver") - 1;
                 if (sel == -1) continue;
                 if (sel < 0 || sel >= list.size()) {
-                    System.out.println("Selección inválida.");
+                    System.out.println("Seleccion invalida.");
                     ConsoleUtil.pause();
                     continue;
                 }
@@ -112,9 +112,9 @@ public class KanbanApp {
                     continue;
                 }
                 for (int i = 0; i < list.size(); i++) System.out.println((i+1) + ") " + list.get(i).getNombre());
-                int sel = ConsoleUtil.readInt("Seleccione proyecto (número)") - 1;
-                if (sel < 0 || sel >= list.size()) {
-                    System.out.println("Selección inválida.");
+                int sel = ConsoleUtil.readInt("Seleccione proyecto (numero)") - 1;
+                    if (sel < 0 || sel >= list.size()) {
+                    System.out.println("Seleccion invalida.");
                     ConsoleUtil.pause();
                     continue;
                 }
@@ -133,7 +133,7 @@ public class KanbanApp {
             System.out.println("4) Filtrar tareas");
             System.out.println("5) Gestionar tarea (seleccionar tarea)");
             System.out.println("0) Volver");
-            int opt = ConsoleUtil.readInt("Seleccione una opción");
+            int opt = ConsoleUtil.readInt("Seleccione una opcion");
             if (opt == 0) break;
             if (opt == 1) {
                 showTasksWithProgress(project);
@@ -193,14 +193,14 @@ public class KanbanApp {
     }
 
     private static void createTaskInteractive(Proyecto project, Usuario user, ProjectService pService, TaskService tService) {
-        String titulo = ConsoleUtil.readLine("Título de la tarea");
-        String desc = ConsoleUtil.readLine("Descripción");
-        int dia = ConsoleUtil.readInt("Día de fecha límite (num)");
-        int mes = ConsoleUtil.readInt("Mes de fecha límite (num)");
-        int anio = ConsoleUtil.readInt("Año de fecha límite (num)");
+    String titulo = ConsoleUtil.readLine("Titulo de la tarea");
+    String desc = ConsoleUtil.readLine("Descripcion");
+    int dia = ConsoleUtil.readInt("Dia de fecha limite (num)");
+    int mes = ConsoleUtil.readInt("Mes de fecha limite (num)");
+    int anio = ConsoleUtil.readInt("Anio de fecha limite (num)");
         FechaLimite fecha = new FechaLimite(dia, mes, anio);
         System.out.println("Prioridades: 1-URGENTE 2-IMPORTANTE 3-MEDIA 4-BAJA");
-        int p = ConsoleUtil.readInt("Seleccione prioridad (número)");
+    int p = ConsoleUtil.readInt("Seleccione prioridad (numero)");
         Prioridad prioridad = switch (p) {
             case 1 -> Prioridad.URGENTE;
             case 2 -> Prioridad.IMPORTANTE;
@@ -214,13 +214,13 @@ public class KanbanApp {
     }
 
     private static void filterTasksInteractive(Proyecto project) {
-        System.out.println("Filtrar por: 1) Prioridad 2) Estado 3) Asignado 4) Etiqueta 0) Volver");
-        int opt = ConsoleUtil.readInt("Opción");
+    System.out.println("Filtrar por: 1) Prioridad 2) Estado 3) Asignado 4) Etiqueta 0) Volver");
+    int opt = ConsoleUtil.readInt("Opcion");
         if (opt == 0) return;
         switch (opt) {
             case 1 -> {
                 System.out.println("Prioridades: 1-URGENTE 2-IMPORTANTE 3-MEDIA 4-BAJA");
-                int p = ConsoleUtil.readInt("Seleccione prioridad (número)");
+                int p = ConsoleUtil.readInt("Seleccione prioridad (numero)");
                 Prioridad prioridad = switch (p) {
                     case 1 -> Prioridad.URGENTE;
                     case 2 -> Prioridad.IMPORTANTE;
@@ -232,7 +232,7 @@ public class KanbanApp {
             }
             case 2 -> {
                 System.out.println("Estados: 1-PENDIENTE 2-EN_PROGRESO 3-COMPLETADA");
-                int e = ConsoleUtil.readInt("Seleccione estado (número)");
+                int e = ConsoleUtil.readInt("Seleccione estado (numero)");
                 EstadoTarea estado = switch (e) {
                     case 1 -> EstadoTarea.PENDIENTE;
                     case 2 -> EstadoTarea.EN_PROGRESO;
@@ -251,7 +251,7 @@ public class KanbanApp {
                 project.getTareas().stream().filter(t -> t.getEtiquetas().stream().anyMatch(et -> et.getNombre().equalsIgnoreCase(tag))).forEach(t -> System.out.println(t));
                 ConsoleUtil.pause();
             }
-            default -> System.out.println("Opción inválida");
+            default -> System.out.println("Opcion invalida");
         }
     }
 
@@ -267,7 +267,7 @@ public class KanbanApp {
             if (opt == 0) break;
             if (opt == 1) {
                 System.out.println("Estados: 1-PENDIENTE 2-EN_PROGRESO 3-COMPLETADA");
-                int e = ConsoleUtil.readInt("Seleccione estado (número)");
+                int e = ConsoleUtil.readInt("Seleccione estado (numero)");
                 EstadoTarea estado = switch (e) {
                     case 1 -> EstadoTarea.PENDIENTE;
                     case 2 -> EstadoTarea.EN_PROGRESO;
@@ -287,7 +287,7 @@ public class KanbanApp {
                 for (int i = 0; i < proyecto.getMiembros().size(); i++) System.out.println((i+1) + ") " + proyecto.getMiembros().get(i).getNombre());
                 int m = ConsoleUtil.readInt("Seleccione miembro (número)") - 1;
                 if (m < 0 || m >= proyecto.getMiembros().size()) {
-                    System.out.println("Selección inválida.");
+                    System.out.println("Seleccion invalida.");
                     ConsoleUtil.pause();
                     continue;
                 }
@@ -298,7 +298,7 @@ public class KanbanApp {
             }
             if (opt == 3) {
                 System.out.println("Prioridades: 1-URGENTE 2-IMPORTANTE 3-MEDIA 4-BAJA");
-                int p = ConsoleUtil.readInt("Seleccione prioridad (número)");
+                int p = ConsoleUtil.readInt("Seleccione prioridad (numero)");
                 Prioridad prioridad = switch (p) {
                     case 1 -> Prioridad.URGENTE;
                     case 2 -> Prioridad.IMPORTANTE;
