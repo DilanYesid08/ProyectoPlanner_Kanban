@@ -127,9 +127,11 @@ public class KanbanApp {
     private static void projectMenu(Proyecto project, Usuario user, ProjectService pService, TaskService tService) {
         while (true) {
             System.out.println("\n--- Proyecto: " + project.getNombre() + " ---");
+            System.out.println("ID: " + project.getId());
             System.out.println("1) Mostrar tareas (con progreso)");
             System.out.println("2) Crear tarea en este proyecto");
             System.out.println("3) Agregar miembro al proyecto");
+            System.out.println("6) Eliminar proyecto");
             System.out.println("4) Filtrar tareas");
             System.out.println("5) Gestionar tarea (seleccionar tarea)");
             System.out.println("0) Volver");
@@ -153,6 +155,19 @@ public class KanbanApp {
                 System.out.println("Miembro añadido: " + u.getNombre());
                 ConsoleUtil.pause();
                 continue;
+            }
+            if (opt == 6) {
+                String confirm = ConsoleUtil.readLine("Seguro que desea eliminar este proyecto? (s/n)");
+                if ("s".equalsIgnoreCase(confirm)) {
+                    pService.removeProject(project);
+                    System.out.println("Proyecto eliminado.");
+                    ConsoleUtil.pause();
+                    break;
+                } else {
+                    System.out.println("Eliminacion cancelada.");
+                    ConsoleUtil.pause();
+                    continue;
+                }
             }
             if (opt == 4) {
                 filterTasksInteractive(project);

@@ -61,7 +61,7 @@ public class Proyecto extends BaseEntity {
 
     @Override
     public String toString() {
-        return "Proyecto: " + nombre + "\nDescripción: " + descripcion +
-               "\nMiembros: " + miembros.size() + " | Tareas: " + tareas.size();
+        return String.format("Proyecto{id=%s, nombre='%s', descripcion='%s', miembros=%d, tareas=%d}",
+                getId(), nombre, descripcion, miembros.size(), tareas.size());
     }
 }

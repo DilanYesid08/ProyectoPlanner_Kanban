@@ -34,8 +34,8 @@ public class ProjectService {
         Proyecto p = new Proyecto(nombre, descripcion);
         p.agregarMiembro(owner);
         repo.getProyectos().add(p);
-        // Referencia simple en Usuario: se almacena la representación del proyecto.
-        owner.agregarProyecto(p.toString());
+        // Referencia en Usuario: almacenar el id del proyecto para referencias robustas.
+        owner.agregarProyecto(p.getId());
         return p;
     }
 
@@ -54,9 +54,24 @@ public class ProjectService {
     public List<Proyecto> listProjectsForUser(Usuario usuario) {
         List<Proyecto> list = new ArrayList<>();
         for (Proyecto p : repo.getProyectos()) {
-            if (p.toString().contains(usuario.getNombre())) list.add(p);
+            // Incluir proyecto si el usuario está en la lista de miembros o si su lista
+            // de projectIds contiene el id del proyecto.
+            if (p.getMiembros().contains(usuario) || usuario.getProjectIds().contains(p.getId())) {
+                list.add(p);
+            }
         }
         return list;
+    }
+
+    /**
+     * Elimina un proyecto del repositorio y remueve referencias de usuarios.
+     */
+    public void removeProject(Proyecto proyecto) {
+        if (proyecto == null) return;
+        repo.getProyectos().remove(proyecto);
+        for (Usuario u : repo.getUsuarios()) {
+            u.removerProyecto(proyecto.getId());
+        }
     }
 
     /** Devuelve todos los proyectos (copia simple de la lista interna). */
