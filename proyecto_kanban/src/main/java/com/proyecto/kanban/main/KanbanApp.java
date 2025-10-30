@@ -1,5 +1,6 @@
 package com.proyecto.kanban.main;
 
+import com.proyecto.kanban.exceptions.FechaInvalidaException;
 import com.proyecto.kanban.model.FechaLimite;
 import com.proyecto.kanban.model.Prioridad;
 import com.proyecto.kanban.model.Proyecto;
@@ -210,10 +211,22 @@ public class KanbanApp {
     private static void createTaskInteractive(Proyecto project, Usuario user, ProjectService pService, TaskService tService) {
     String titulo = ConsoleUtil.readLine("Titulo de la tarea");
     String desc = ConsoleUtil.readLine("Descripcion");
-    int dia = ConsoleUtil.readInt("Dia de fecha limite (num)");
-    int mes = ConsoleUtil.readInt("Mes de fecha limite (num)");
-    int anio = ConsoleUtil.readInt("Anio de fecha limite (num)");
-        FechaLimite fecha = new FechaLimite(dia, mes, anio);
+    
+    FechaLimite fecha = null;
+    while (fecha == null) {
+        try {
+            int dia = ConsoleUtil.readInt("Día de fecha límite (num)");
+            int mes = ConsoleUtil.readInt("Mes de fecha límite (num)");
+            int año = ConsoleUtil.readInt("Año de fecha límite (num, entre 2000-2100)");
+            // Primero validamos
+            FechaLimite.validarFecha(dia, mes, año);
+            // Si pasa la validación, creamos la fecha
+            fecha = new FechaLimite(dia, mes, año);
+        } catch (FechaInvalidaException e) {
+            System.out.println("Error: " + e.getMessage());
+            System.out.println("Por favor, ingrese la fecha nuevamente.");
+        }
+    }
         System.out.println("Prioridades: 1-URGENTE 2-IMPORTANTE 3-MEDIA 4-BAJA");
     int p = ConsoleUtil.readInt("Seleccione prioridad (numero)");
         Prioridad prioridad = switch (p) {

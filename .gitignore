@@ -1,9 +1,18 @@
-# Java / Maven build artifacts
+# Maven build folders
 target/
 **/target/
-*.class
-# IDE / OS (optional)
+
+# Archivos específicos que no queremos versionar
+docs/CHAT_SUMMARY.md
+docs/model_spec.md
+
+# IDE files
+.idea/
 *.iml
 .vscode/
-.idea/
+
+# Logs
 *.log
+
+# Compiled files
+*.class
