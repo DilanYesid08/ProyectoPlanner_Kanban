@@ -53,5 +53,4 @@ En Linux/macOS puedes usar comandos equivalentes con `find` en vez de `Get-Child
 - Añadir pruebas unitarias (Junit)
 - Mejorar búsqueda/filtrado y orden por prioridad/fecha
 
-Si quieres que implemente alguna de estas mejoras, dime cuál y lo añado.
-# ProyectoPlanner_Kanban
+(Todo esto por ahora)

@@ -1,9 +1,0 @@
-# Java / Maven build artifacts
-target/
-**/target/
-*.class
-# IDE / OS (optional)
-*.iml
-.vscode/
-.idea/
-*.log
