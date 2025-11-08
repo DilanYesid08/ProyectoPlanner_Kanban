@@ -25,6 +25,13 @@ public class Proyecto extends BaseEntity {
     private List<Tarea> tareas;
     private List<Usuario> miembros;
 
+    public Proyecto(String nombre, Usuario lider) {
+        this(nombre, "");
+        if (lider != null) {
+            agregarMiembro(lider);
+        }
+    }
+
     public Proyecto(String nombre, String descripcion) {
         // El identificador `id` proviene de {@link BaseEntity} y se inicializa
         // automáticamente en la declaración del campo en la clase base. No

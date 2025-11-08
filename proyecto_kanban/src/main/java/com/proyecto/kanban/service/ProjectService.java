@@ -4,78 +4,68 @@ import com.proyecto.kanban.model.Proyecto;
 import com.proyecto.kanban.model.Tarea;
 import com.proyecto.kanban.model.Usuario;
 import com.proyecto.kanban.storage.Repository;
-// Persistencia eliminada: el repositorio ahora vive solo en memoria
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Servicio para operaciones sobre proyectos.
- *
- * Responsabilidades:
- * - Crear proyectos y añadir miembros
- * - Añadir tareas a proyectos
- * - Listar proyectos
- *
- * Nota: la forma en que se almacenan las referencias a proyectos en Usuario es intencionalmente
- * simple (se usa el resultado de toString()). Esto facilita la simulación y evita introducir IDs
- * y lógica adicional. Para mejoras futuras, conviene usar IDs y buscar proyectos por id.
+ * Servicio para la gestión de proyectos en el sistema Kanban.
+ * Maneja la creación, actualización y consulta de proyectos.
  */
 public class ProjectService {
-    private final Repository repo;
+    private final Repository repository;
 
-    public ProjectService(Repository repo) {
-        this.repo = repo;
-    }
-
-    /** Crea un proyecto, añade el owner como miembro y persiste el repositorio. */
-    public Proyecto createProject(String nombre, String descripcion, Usuario owner) {
-        Proyecto p = new Proyecto(nombre, descripcion);
-        p.agregarMiembro(owner);
-        repo.getProyectos().add(p);
-        // Referencia en Usuario: almacenar el id del proyecto para referencias robustas.
-        owner.agregarProyecto(p.getId());
-        return p;
-    }
-
-    /** Añade un miembro a un proyecto y persiste. */
-    public void addMember(Proyecto proyecto, Usuario usuario) {
-        proyecto.agregarMiembro(usuario);
-        usuario.agregarProyecto(proyecto.toString());
-    }
-
-    /** Añade una tarea a un proyecto y persiste. */
-    public void addTask(Proyecto proyecto, Tarea tarea) {
-        proyecto.agregarTarea(tarea);
-    }
-
-    /** Lista proyectos donde el usuario aparece (método simple para la demo). */
-    public List<Proyecto> listProjectsForUser(Usuario usuario) {
-        List<Proyecto> list = new ArrayList<>();
-        for (Proyecto p : repo.getProyectos()) {
-            // Incluir proyecto si el usuario está en la lista de miembros o si su lista
-            // de projectIds contiene el id del proyecto.
-            if (p.getMiembros().contains(usuario) || usuario.getProjectIds().contains(p.getId())) {
-                list.add(p);
-            }
-        }
-        return list;
+    public ProjectService(Repository repository) {
+        this.repository = repository;
     }
 
     /**
-     * Elimina un proyecto del repositorio y remueve referencias de usuarios.
+     * Crea un nuevo proyecto con el usuario creador como líder.
+     * @param nombre Nombre del proyecto
+     * @param descripcion Descripción del proyecto
+     * @param lider Usuario que será el líder del proyecto
+     * @return El proyecto creado
      */
-    public void removeProject(Proyecto proyecto) {
-        if (proyecto == null) return;
-        repo.getProyectos().remove(proyecto);
-        for (Usuario u : repo.getUsuarios()) {
-            u.removerProyecto(proyecto.getId());
+    public Proyecto crearProyecto(String nombre, String descripcion, Usuario lider) {
+        // Usar el constructor con descripción
+        Proyecto proyecto = new Proyecto(nombre, descripcion);
+        // Agregar el líder como primer miembro
+        if (lider != null) {
+            proyecto.agregarMiembro(lider);
+        }
+        repository.getProyectos().add(proyecto);
+        return proyecto;
+    }
+
+    /**
+     * Obtiene todos los proyectos donde el usuario es miembro.
+     * @param usuario Usuario del que se quieren obtener los proyectos
+     * @return Lista de proyectos donde el usuario es miembro
+     */
+    public List<Proyecto> getProyectosUsuario(Usuario usuario) {
+        return repository.getProyectos().stream()
+                .filter(p -> p.getMiembros().contains(usuario))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Añade una tarea al proyecto especificado.
+     * @param proyecto Proyecto al que se añadirá la tarea
+     * @param tarea Tarea a añadir
+     */
+    public void agregarTarea(Proyecto proyecto, Tarea tarea) {
+        if (proyecto != null && tarea != null) {
+            proyecto.agregarTarea(tarea);
         }
     }
 
-    /** Devuelve todos los proyectos (copia simple de la lista interna). */
-    public List<Proyecto> getAll() {
-        return repo.getProyectos().stream().collect(Collectors.toList());
+    /**
+     * Añade un miembro al proyecto si no está ya incluido.
+     * @param proyecto Proyecto al que se añadirá el miembro
+     * @param usuario Usuario a añadir como miembro
+     */
+    public void agregarMiembro(Proyecto proyecto, Usuario usuario) {
+        if (proyecto != null && usuario != null) {
+            proyecto.agregarMiembro(usuario);
+        }
     }
 }

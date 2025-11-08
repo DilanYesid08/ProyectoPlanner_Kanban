@@ -6,67 +6,67 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
- * Clase para representar la fecha límite de una tarea.
- * Se considera composición: cada tarea puede tener su FechaLimite; la fecha "vive"
+ * Clase para representar la fecha limite de una tarea.
+ * Se considera composicion: cada tarea puede tener su FechaLimite; la fecha "vive"
  * asociada a la tarea.
  *
- * Incluye validaciones robustas para asegurar fechas válidas.
+ * Incluye validaciones robustas para asegurar fechas validas.
  */
 public class FechaLimite {
     private LocalDate fecha;
 
     /** 
-     * Crea FechaLimite desde día/mes/año con validación.
-     * @throws FechaInvalidaException si la fecha no es válida
+     * Crea FechaLimite desde dia/mes/anio con validacion.
+     * @throws FechaInvalidaException si la fecha no es valida
      */
-    public FechaLimite(int dia, int mes, int año) {
-        validarFecha(dia, mes, año);
-        this.fecha = LocalDate.of(año, mes, dia);
+    public FechaLimite(int dia, int mes, int anio) {
+        validarFecha(dia, mes, anio);
+        this.fecha = LocalDate.of(anio, mes, dia);
     }
 
     /** Crea desde LocalDate directamente */
     public FechaLimite(LocalDate fecha) {
-        if (fecha == null) throw new FechaInvalidaException("La fecha no puede estar vacía");
+        if (fecha == null) throw new FechaInvalidaException("La fecha no puede estar vacia");
         this.fecha = fecha;
     }
 
     /**
      * Valida que la fecha sea correcta.
-     * @throws FechaInvalidaException si algún componente de la fecha es inválido
+     * @throws FechaInvalidaException si algun componente de la fecha es invalido
      */
-    public static void validarFecha(int dia, int mes, int año) {
+    public static void validarFecha(int dia, int mes, int anio) {
         if (mes < 1 || mes > 12) {
             throw new FechaInvalidaException("El mes debe estar entre 1 y 12");
         }
         
-        // Días máximos según el mes
+        // Dias maximos segun el mes
         int maxDias = switch (mes) {
-            case 2 -> (esAñoBisiesto(año)) ? 29 : 28;
+            case 2 -> (esAnioBisiesto(anio)) ? 29 : 28;
             case 4, 6, 9, 11 -> 30;
             default -> 31;
         };
         
         if (dia < 1 || dia > maxDias) {
             throw new FechaInvalidaException(
-                String.format("El día debe estar entre 1 y %d para el mes %d", maxDias, mes)
+                String.format("El dia debe estar entre 1 y %d para el mes %d", maxDias, mes)
             );
         }
 
-        // Validar año razonable (entre 2000 y 2100 para este ejemplo)
-        if (año < 2000 || año > 2100) {
+        // Validar anio razonable (entre 2000 y 2100 para este ejemplo)
+        if (anio < 2000 || anio > 2100) {
             throw new FechaInvalidaException(
-                "El año debe estar entre 2000 y 2100"
+                "El anio debe estar entre 2000 y 2100"
             );
         }
     }
 
     /**
-     * Determina si un año es bisiesto.
-     * Un año es bisiesto si es divisible por 4, excepto si es divisible por 100,
-     * a menos que también sea divisible por 400.
+     * Determina si un anio es bisiesto.
+     * Un anio es bisiesto si es divisible por 4, excepto si es divisible por 100,
+     * a menos que tambien sea divisible por 400.
      */
-    private static boolean esAñoBisiesto(int año) {
-        return (año % 4 == 0 && año % 100 != 0) || (año % 400 == 0);
+    private static boolean esAnioBisiesto(int anio) {
+        return (anio % 4 == 0 && anio % 100 != 0) || (anio % 400 == 0);
     }
 
     public LocalDate getFecha() {
@@ -77,12 +77,12 @@ public class FechaLimite {
         this.fecha = fecha;
     }
 
-    /** Devuelve true si la fecha está antes de hoy (vencida) */
+    /** Devuelve true si la fecha esta antes de hoy (vencida) */
     public boolean estaVencida() {
         return fecha != null && fecha.isBefore(LocalDate.now());
     }
 
-    /** Formato legible ISO (yyyy-MM-dd). Útil para guardar como String. */
+    /** Formato legible ISO (yyyy-MM-dd). Util para guardar como String. */
     @Override
     public String toString() {
         if (fecha == null) return "Sin fecha";

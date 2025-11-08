@@ -1,5 +1,7 @@
 package com.proyecto.kanban.service;
 
+import java.util.List;
+import java.util.ArrayList;
 import com.proyecto.kanban.model.Etiqueta;
 import com.proyecto.kanban.model.EstadoTarea;
 import com.proyecto.kanban.model.FechaLimite;
@@ -25,5 +27,20 @@ public class TaskService {
     /** Mueve la tarea a un nuevo estado. */
     public void moveToEstado(Tarea tarea, EstadoTarea estado) {
         if (tarea != null) tarea.cambiarEstado(estado);
+    }
+
+    /** Lista de tareas en memoria. Usada para la interfaz gráfica. */
+    private List<Tarea> tareas = new ArrayList<>();
+
+    /** Agrega una tarea a la lista. */
+    public void agregarTarea(Tarea tarea) {
+        if (tarea != null) {
+            tareas.add(tarea);
+        }
+    }
+
+    /** Obtiene todas las tareas almacenadas. */
+    public List<Tarea> obtenerTareas() {
+        return new ArrayList<>(tareas); // Devuelve una copia para evitar modificaciones directas
     }
 }

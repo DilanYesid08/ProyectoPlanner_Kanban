@@ -94,6 +94,22 @@ public class Tarea {
         };
     }
 
+    /** Modifica la fecha límite de la tarea. */
+    public void setFechaLimite(FechaLimite fechaLimite) {
+        this.fechaLimite = fechaLimite;
+    }
+
+        /** Modifica el título de la tarea. */
+        public void setTitulo(String titulo) {
+            if (titulo != null && !titulo.trim().isEmpty()) {
+                this.titulo = titulo.trim();
+            }
+        }
+
+        /** Modifica la descripción de la tarea. */
+        public void setDescripcion(String descripcion) {
+            this.descripcion = descripcion != null ? descripcion.trim() : "";
+        }
     @Override
     public String toString() {
         String asignado = asignadoA != null ? asignadoA.getNombre() : "Sin asignar";
