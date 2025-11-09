@@ -2,6 +2,7 @@ module com.proyecto.kanban {
     requires javafx.controls;
     requires javafx.fxml;
     requires transitive javafx.graphics;
+    requires javafx.base;
     
     opens com.proyecto.kanban.main to javafx.fxml, javafx.graphics;
     opens com.proyecto.kanban.model to javafx.base;
@@ -13,4 +14,5 @@ module com.proyecto.kanban {
     exports com.proyecto.kanban.view;
     exports com.proyecto.kanban.service;
     exports com.proyecto.kanban.storage;
+    exports com.proyecto.kanban.view.util;
 }

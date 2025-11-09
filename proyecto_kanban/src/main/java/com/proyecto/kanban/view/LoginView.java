@@ -2,6 +2,8 @@ package com.proyecto.kanban.view;
 
 import com.proyecto.kanban.model.Usuario;
 import com.proyecto.kanban.service.AuthService;
+import com.proyecto.kanban.service.ProjectService;
+import com.proyecto.kanban.service.TaskService;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -90,9 +92,11 @@ public class LoginView {
         try {
             Usuario usuario = authService.login(email);
             if (usuario != null) {
-                // create ProjectBoardView with logout handler to return to login
+                // create ProjectBoardView with logout handler and services (reuse same repo)
                 if (projectBoardView == null) {
-                    projectBoardView = new ProjectBoardView(s -> this.show(s));
+                    ProjectService ps = new ProjectService(authService.getRepo());
+                    TaskService ts = new TaskService();
+                    projectBoardView = new ProjectBoardView(s -> this.show(s), ps, ts, authService);
                 }
                 projectBoardView.show(stage, usuario);
             } else {
@@ -119,7 +123,9 @@ public class LoginView {
             Usuario usuario = authService.signup(nombre, email);
             if (usuario != null) {
                 if (projectBoardView == null) {
-                    projectBoardView = new ProjectBoardView(s -> this.show(s));
+                    ProjectService ps = new ProjectService(authService.getRepo());
+                    TaskService ts = new TaskService();
+                    projectBoardView = new ProjectBoardView(s -> this.show(s), ps, ts, authService);
                 }
                 projectBoardView.show(stage, usuario);
             } else {

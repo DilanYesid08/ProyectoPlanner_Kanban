@@ -23,6 +23,7 @@ public class Tarea {
     private Prioridad prioridad;
     private EstadoTarea estado;
     private List<Etiqueta> etiquetas;
+    private Proyecto proyecto; // Referencia al proyecto al que pertenece la tarea
 
     /**
      * Constructor principal de Tarea.
@@ -58,6 +59,8 @@ public class Tarea {
     public Prioridad getPrioridad() { return prioridad; }
     public EstadoTarea getEstado() { return estado; }
     public List<Etiqueta> getEtiquetas() { return etiquetas; }
+    public Proyecto getProyecto() { return proyecto; }
+    public void setProyecto(Proyecto proyecto) { this.proyecto = proyecto; }
 
     /** Añade una etiqueta a la tarea. */
     public void agregarEtiqueta(Etiqueta etiqueta) {

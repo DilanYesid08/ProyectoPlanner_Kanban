@@ -48,9 +48,17 @@ public class Proyecto extends BaseEntity {
         if (usuario != null && !miembros.contains(usuario)) miembros.add(usuario);
     }
 
+    /** Elimina un miembro (usuario) del proyecto. */
+    public void eliminarMiembro(Usuario usuario) {
+        if (usuario != null) miembros.remove(usuario);
+    }
+
     /** Añade una tarea al proyecto (composición). */
     public void agregarTarea(Tarea tarea) {
-        if (tarea != null) tareas.add(tarea);
+        if (tarea != null) {
+            tareas.add(tarea);
+            tarea.setProyecto(this);
+        }
     }
 
     /** Muestra por consola las tareas del proyecto (uso simple en consola). */

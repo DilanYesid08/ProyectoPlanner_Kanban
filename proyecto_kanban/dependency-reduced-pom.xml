@@ -20,20 +20,9 @@
         <version>0.0.8</version>
         <configuration>
           <mainClass>com.proyecto.kanban.main.MainApp</mainClass>
-          <options>
-            <option>--add-modules</option>
-            <option>javafx.controls,javafx.fxml</option>
-            <option>--add-opens</option>
-            <option>javafx.graphics/javafx.scene=ALL-UNNAMED</option>
-          </options>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
+          <launcher>launcher</launcher>
+          <jlinkImageName>kanban</jlinkImageName>
+          <jlinkZipName>kanbanzip</jlinkZipName>
         </configuration>
       </plugin>
       <plugin>

@@ -68,4 +68,15 @@ public class ProjectService {
             proyecto.agregarMiembro(usuario);
         }
     }
+
+    /**
+     * Elimina un miembro del proyecto.
+     * @param proyecto Proyecto del que se eliminará el miembro
+     * @param usuario Usuario a eliminar
+     */
+    public void eliminarMiembro(Proyecto proyecto, Usuario usuario) {
+        if (proyecto != null && usuario != null) {
+            proyecto.eliminarMiembro(usuario);
+        }
+    }
 }

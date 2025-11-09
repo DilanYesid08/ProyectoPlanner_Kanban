@@ -14,9 +14,11 @@ import javafx.scene.layout.GridPane;
 
 public class TaskCard extends VBox {
     private final Tarea tarea;
+    private final com.proyecto.kanban.service.TaskService taskService;
     
-    public TaskCard(Tarea tarea, Runnable onTaskUpdated) {
+    public TaskCard(Tarea tarea, Runnable onTaskUpdated, com.proyecto.kanban.service.TaskService taskService) {
         this.tarea = tarea;
+        this.taskService = taskService;
         
         setPadding(new Insets(10));
         setSpacing(5);
@@ -118,7 +120,11 @@ public class TaskCard extends VBox {
             String nombre = nuevaEtiqueta.getText().trim();
             if (!nombre.isEmpty()) {
                 String colorHex = colorPicker.getValue().toString();
-                tarea.agregarEtiqueta(new Etiqueta(nombre, colorHex));
+                if (taskService != null) {
+                    taskService.addEtiqueta(tarea, nombre, colorHex);
+                } else {
+                    tarea.agregarEtiqueta(new Etiqueta(nombre, colorHex));
+                }
                 nuevaEtiqueta.clear();
             }
         });
@@ -133,21 +139,66 @@ public class TaskCard extends VBox {
         grid.add(prioridadCombo, 1, 3);
         grid.add(new Label("Fecha límite:"), 0, 4);
         grid.add(fechaPicker, 1, 4);
-        grid.add(new Label("Nueva etiqueta:"), 0, 5);
-        
+
+        // ComboBox para asignar/desasignar miembro
+        ComboBox<Usuario> asignadoCombo = new ComboBox<>();
+        // Obtener la lista de miembros del proyecto
+        Proyecto proyecto = tarea.getProyecto();
+        if (proyecto != null) {
+            asignadoCombo.getItems().addAll(proyecto.getMiembros());
+        }
+        asignadoCombo.setValue(tarea.getAsignadoA());
+        asignadoCombo.setPromptText("Sin asignar");
+        asignadoCombo.setCellFactory(param -> new ListCell<Usuario>() {
+            @Override
+            protected void updateItem(Usuario usuario, boolean empty) {
+                super.updateItem(usuario, empty);
+                if (empty || usuario == null) {
+                    setText("Sin asignar");
+                } else {
+                    setText(usuario.getNombre() + " (" + usuario.getEmail() + ")");
+                }
+            }
+        });
+        asignadoCombo.setButtonCell(asignadoCombo.getCellFactory().call(null));
+
+        Button desasignarButton = new Button("Desasignar");
+        desasignarButton.setOnAction(e -> {
+            asignadoCombo.setValue(null);
+        });
+
+        HBox asignacionBox = new HBox(5, asignadoCombo, desasignarButton);
+        grid.add(new Label("Asignado a:"), 0, 5);
+        grid.add(asignacionBox, 1, 5);
+
+        grid.add(new Label("Nueva etiqueta:"), 0, 6);
         HBox tagBox = new HBox(5, nuevaEtiqueta, colorPicker, addTagButton);
-        grid.add(tagBox, 1, 5);
+        grid.add(tagBox, 1, 6);
         
         dialog.getDialogPane().setContent(grid);
         
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                tarea.setTitulo(titleField.getText());
-                tarea.setDescripcion(descArea.getText());
-                tarea.cambiarEstado(estadoCombo.getValue());
-                tarea.setPrioridad(prioridadCombo.getValue());
-                if (fechaPicker.getValue() != null) {
-                    tarea.setFechaLimite(new FechaLimite(fechaPicker.getValue()));
+                if (taskService != null) {
+                    taskService.updateTask(
+                        tarea,
+                        titleField.getText(),
+                        descArea.getText(),
+                        fechaPicker.getValue() != null ? new FechaLimite(fechaPicker.getValue()) : null,
+                        prioridadCombo.getValue(),
+                        estadoCombo.getValue(),
+                        asignadoCombo.getValue()
+                    );
+                } else {
+                    tarea.setTitulo(titleField.getText());
+                    tarea.setDescripcion(descArea.getText());
+                    tarea.cambiarEstado(estadoCombo.getValue());
+                    tarea.setPrioridad(prioridadCombo.getValue());
+                    if (fechaPicker.getValue() != null) {
+                        tarea.setFechaLimite(new FechaLimite(fechaPicker.getValue()));
+                    }
+                    // Actualizar el usuario asignado
+                    tarea.asignarUsuario(asignadoCombo.getValue());
                 }
                 onTaskUpdated.run();
                 return dialogButton;

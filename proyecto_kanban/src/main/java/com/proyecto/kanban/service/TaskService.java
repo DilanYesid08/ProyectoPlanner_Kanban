@@ -29,6 +29,19 @@ public class TaskService {
         if (tarea != null) tarea.cambiarEstado(estado);
     }
 
+    /** Actualiza campos de la tarea de forma centralizada. */
+    public void updateTask(Tarea tarea, String titulo, String descripcion, FechaLimite fechaLimite,
+                           Prioridad prioridad, EstadoTarea estado, Usuario asignado) {
+        if (tarea == null) return;
+        if (titulo != null) tarea.setTitulo(titulo);
+        if (descripcion != null) tarea.setDescripcion(descripcion);
+        if (estado != null) tarea.cambiarEstado(estado);
+        if (prioridad != null) tarea.setPrioridad(prioridad);
+        if (fechaLimite != null) tarea.setFechaLimite(fechaLimite);
+        // asignado puede ser null para desasignar
+        tarea.asignarUsuario(asignado);
+    }
+
     /** Lista de tareas en memoria. Usada para la interfaz gráfica. */
     private List<Tarea> tareas = new ArrayList<>();
 

@@ -44,4 +44,12 @@ public class AuthService {
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
                 .findFirst().orElse(null);
     }
+
+    /**
+     * Devuelve el repositorio subyacente. Se expone para permitir que
+     * componentes de la UI o servicios reutilicen el mismo almacenamiento en memoria.
+     */
+    public com.proyecto.kanban.storage.Repository getRepo() {
+        return repo;
+    }
 }
