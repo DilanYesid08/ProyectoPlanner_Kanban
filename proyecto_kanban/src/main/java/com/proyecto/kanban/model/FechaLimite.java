@@ -3,6 +3,7 @@ package com.proyecto.kanban.model;
 import com.proyecto.kanban.exceptions.FechaInvalidaException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -14,6 +15,8 @@ import java.util.Objects;
  */
 public class FechaLimite {
     private LocalDate fecha;
+    // Opcional: si la hora es relevante, se guarda aqui. Si es null, solo se considera la fecha.
+    private LocalDateTime fechaHora;
 
     /** 
      * Crea FechaLimite desde dia/mes/anio con validacion.
@@ -28,6 +31,14 @@ public class FechaLimite {
     public FechaLimite(LocalDate fecha) {
         if (fecha == null) throw new FechaInvalidaException("La fecha no puede estar vacia");
         this.fecha = fecha;
+    }
+
+    /** Crea FechaLimite desde LocalDateTime (fecha + hora). Mantiene compatibilidad con getFecha(). */
+    public FechaLimite(LocalDateTime fechaHora) {
+        if (fechaHora == null) throw new FechaInvalidaException("La fecha no puede estar vacia");
+        validarFecha(fechaHora.getDayOfMonth(), fechaHora.getMonthValue(), fechaHora.getYear());
+        this.fecha = fechaHora.toLocalDate();
+        this.fechaHora = fechaHora;
     }
 
     /**
@@ -73,19 +84,30 @@ public class FechaLimite {
         return fecha;
     }
 
+    /** Si existe, devuelve la fecha con hora; puede ser null. */
+    public LocalDateTime getFechaHora() { return fechaHora; }
+
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 
     /** Devuelve true si la fecha esta antes de hoy (vencida) */
     public boolean estaVencida() {
-        return fecha != null && fecha.isBefore(LocalDate.now());
+        // Si hay hora, comparar con now exacto; si solo hay fecha, comparar por dia.
+        if (fecha == null) return false;
+        if (fechaHora != null) {
+            return fechaHora.isBefore(LocalDateTime.now());
+        }
+        return fecha.isBefore(LocalDate.now());
     }
 
     /** Formato legible ISO (yyyy-MM-dd). Util para guardar como String. */
     @Override
     public String toString() {
         if (fecha == null) return "Sin fecha";
+        if (fechaHora != null) {
+            return fechaHora.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        }
         return fecha.format(DateTimeFormatter.ISO_DATE);
     }
 
@@ -99,6 +121,6 @@ public class FechaLimite {
 
     @Override
     public int hashCode() {
-        return Objects.hash(fecha);
+        return Objects.hash(fecha, fechaHora);
     }
 }

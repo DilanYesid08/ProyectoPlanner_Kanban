@@ -37,6 +37,12 @@ Notas prácticas:
 
 ---
 
+### Cambios recientes en `Tarea`
+- `fechaCreacion : LocalDateTime` — ahora cada `Tarea` registra la fecha y hora de creación en su constructor; se usa para filtrar métricas por periodo en los reportes.
+- `fechaCierre : LocalDateTime` — al cambiar el estado a `COMPLETADA` se registra la fecha de cierre; se usa para contabilizar tareas completadas dentro de un periodo.
+- Impacto: estas fechas permiten que `ReportService` construya métricas period-limited (p. ej. tareas creadas/completadas en un rango). Si no hay tareas en el periodo, los KPIs devuelven 0 o valores neutros para evitar divisiones por cero.
+
+
 ## `Proyecto` (model)
 Propósito: contener tareas y miembros; semántica de composición sobre `Tarea`.
 
@@ -135,6 +141,11 @@ Propósito: valores discretos para priorización y flujo de estado.
 
 ---
 
+### RolMiembro (enum)
+- Valores: ADMINISTRADOR, EDITOR, VISUALIZADOR
+- Uso: representa el rol de un miembro dentro de un `Proyecto`. Está modelado como enum en `com.proyecto.kanban.model` y ofrece una representación legible (displayName) vía `toString()`.
+
+
 ## `Repository` (storage)
 Propósito: almacenamiento en memoria (listas) de `Usuario` y `Proyecto`.
 
@@ -214,6 +225,25 @@ Notas prácticas:
 - `TaskService` actúa como fachada que mantiene invariantes y pasos compuestos (crear + anexar), evitando que la UI tenga que conocer detalles de cómo anexar la tarea al `Proyecto`.
 
 ---
+
+## Exportación y reportes (nuevo)
+Propósito: generar resúmenes (semanal/mensual) y exportarlos a PDF para auditoría o seguimiento.
+
+- `ReportService` (package `com.proyecto.kanban.service`): construye un `ReportData` con métricas y tablas para un `Proyecto` y un rango de fechas (`desde`/`hasta`). Calcula: tareas creadas, completadas, en progreso, pendientes, vencidas y un `Progreso %` que actualmente se calcula sobre las tareas creadas dentro del periodo seleccionado.
+
+- `ReportData` y `ReportTable` (package `com.proyecto.kanban.export`): DTOs usados para transportar la información del reporte a la capa de presentación/export.
+  - `ReportData`: title:String, metadata:Map<String,String>, tables:List<ReportTable>
+  - `ReportTable`: name:String, columns:List<String>, rows:List<List<String>>
+
+- `PdfReportGenerator` (package `com.proyecto.kanban.export`): genera un XHTML básico a partir de `ReportData` y lo renderiza a PDF.
+  - Detalle: para evitar fricciones con `module-info.java` y dependencias de tiempo de ejecución, la integración con OpenHTMLToPDF se hace vía reflexión. Las excepciones reflectivas se desempaquetan para mostrar la causa raíz al usuario.
+
+- Ruta de export: los PDFs se guardan por defecto en la carpeta `Informes` dentro del directorio de trabajo de la aplicación (`user.dir/Informes`). La UI notifica la ruta completa del PDF al usuario después de exportar.
+
+- Dependencia técnica: OpenHTMLToPDF (`com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10`) se usa para convertir HTML/XHTML a PDF. Requiere estar presente en el classpath en tiempo de ejecución; PdfReportGenerator lanza una excepción clara si no se encuentra.
+
+- Consecuencia para el diseño: `ReportData`/`ReportTable` se colocaron en `export` (no en `model`) para dejar claro que son artefactos de presentación/exportación y no parte del dominio.
+
 
 ## `ConsoleUtil` (util)
 Propósito: facilitar entrada/salida por consola (lectura segura, confirmaciones, impresión formateada).

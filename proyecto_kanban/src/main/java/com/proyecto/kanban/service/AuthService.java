@@ -38,11 +38,21 @@ public class AuthService {
         return u;
     }
 
-    /** Busca un usuario por email. Retorna null si no existe. */
+    /** 
+     * Busca un usuario por email. Si no existe, lo crea automáticamente.
+     * Esto es válido para nuestra simulación donde no necesitamos autenticación real.
+     */
     public Usuario login(String email) {
         return repo.getUsuarios().stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElseGet(() -> {
+                    // Si no existe, creamos un usuario automáticamente
+                    String nombre = email.split("@")[0]; // Usamos la parte antes del @ como nombre
+                    Usuario nuevoUsuario = new Usuario(nombre, email);
+                    repo.getUsuarios().add(nuevoUsuario);
+                    return nuevoUsuario;
+                });
     }
 
     /**

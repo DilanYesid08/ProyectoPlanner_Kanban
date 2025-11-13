@@ -9,6 +9,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+// Nota: Eliminado FileChooser - los informes se guardan siempre en la carpeta 'informes'
+import com.proyecto.kanban.export.ReportData;
+import com.proyecto.kanban.service.ReportService;
+import com.proyecto.kanban.export.PdfReportGenerator;
+import com.proyecto.kanban.util.ImageService;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.util.function.Consumer;
@@ -25,6 +32,7 @@ public class ProjectBoardView {
     private final ObservableList<Tarea> tareasProyecto;
     private Usuario usuarioActual;
     private Proyecto proyectoActual;
+    // El directorio de trabajo (user.dir) se usa para crear /informes
     private Consumer<Stage> logoutHandler;
     private Button membersButton;
     // Servicios inyectados
@@ -63,9 +71,23 @@ public class ProjectBoardView {
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
 
-        // Barra superior con información del usuario
+        // Barra superior con información del usuario y logo
         HBox topBar = new HBox(10);
         topBar.setAlignment(Pos.CENTER_LEFT);
+        // Logo pequeño en la esquina superior izquierda
+        Image logoImg = ImageService.load("/assets/logo-minimalista.png");
+        // Fallback: si no se encontró en assets, intentar nombre original
+        if (logoImg == null) {
+            logoImg = ImageService.load("/Logo minimalista par.png");
+        }
+        if (logoImg != null) {
+            ImageView logoView = new ImageView(logoImg);
+            logoView.setFitHeight(36);
+            logoView.setPreserveRatio(true);
+            logoView.setSmooth(true);
+            logoView.setCache(true);
+            topBar.getChildren().add(logoView);
+        }
         Label userLabel = new Label("Usuario: " + usuarioActual.getNombre());
         
         // Botón para gestionar miembros (solo habilitado cuando hay un proyecto seleccionado)
@@ -224,7 +246,63 @@ public class ProjectBoardView {
         boardTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         Button addTaskButton = new Button("+ Nueva Tarea");
         addTaskButton.setOnAction(e -> showNewTaskDialog());
+        Button exportButton = new Button("Exportar PDF");
+        exportButton.setOnAction(e -> {
+            if (proyectoActual == null) {
+                showAlert("Error", "Selecciona un proyecto primero");
+                return;
+            }
+
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Exportar - Resumen PDF");
+            dialog.setHeaderText("Exportar resumen semanal/mensual");
+
+            DatePicker desde = new DatePicker(java.time.LocalDate.now().minusWeeks(1));
+            DatePicker hasta = new DatePicker(java.time.LocalDate.now());
+
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new javafx.geometry.Insets(20));
+            grid.add(new Label("Desde:"), 0, 0);
+            grid.add(desde, 1, 0);
+            grid.add(new Label("Hasta:"), 0, 1);
+            grid.add(hasta, 1, 1);
+
+            dialog.getDialogPane().getButtonTypes().addAll(new ButtonType("Exportar", ButtonBar.ButtonData.OK_DONE), ButtonType.CANCEL);
+            dialog.getDialogPane().setContent(grid);
+
+            dialog.showAndWait().ifPresent(bt -> {
+                if (bt.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                    java.time.LocalDate dDesde = desde.getValue();
+                    java.time.LocalDate dHasta = hasta.getValue();
+                    try {
+                        // Guardar por defecto dentro de la carpeta 'Informes' en el repositorio (directorio de trabajo)
+                        java.nio.file.Path informesDir = java.nio.file.Paths.get(System.getProperty("user.dir"), "Informes");
+                        java.nio.file.Files.createDirectories(informesDir);
+
+                        String fileName = proyectoActual.getNombre().replaceAll("\\s+","_")
+                                + "-resumen_" + (dDesde != null ? dDesde.toString() : "inicio")
+                                + "_" + (dHasta != null ? dHasta.toString() : "hoy") + ".pdf";
+
+                        java.nio.file.Path destino = informesDir.resolve(fileName);
+
+                        ReportService rs = new ReportService();
+                        ReportData data = rs.buildResumenProyecto(proyectoActual, dDesde, dHasta);
+                        PdfReportGenerator gen = new PdfReportGenerator();
+                        gen.generatePdf(data, destino);
+                        showAlert("Exportado", "Informe exportado correctamente: " + destino.toAbsolutePath().toString());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        Throwable root = ex.getCause() != null ? ex.getCause() : ex;
+                        String msg = root.getMessage() != null ? root.getMessage() : root.toString();
+                        showAlert("Error", "No se pudo generar el PDF: " + msg);
+                    }
+                }
+            });
+        });
         header.getChildren().addAll(boardTitle, addTaskButton);
+        header.getChildren().add(exportButton);
 
         // Columnas del tablero
         HBox columns = new HBox(20);
@@ -436,6 +514,8 @@ public class ProjectBoardView {
                 addTaskToCurrentProject(tarea);
             }
             refreshBoard();
+            // Actualizar filtros (etiquetas, asignados) tras crear nueva tarea
+            updateFilterControls();
         });
     }
 
@@ -449,32 +529,42 @@ public class ProjectBoardView {
             membersButton.setDisable(false);
         }
         
-        // Poblar controles de filtrado con datos del proyecto
+        // Actualizar controles de filtrado con datos del proyecto
+        updateFilterControls();
+    }
+
+    /**
+     * Actualiza los controles de filtrado (`filterAssignedCombo`, `filterTagCombo`, `filterPriorityCombo`)
+     * a partir del `proyectoActual`. Se puede llamar después de modificar miembros o tareas.
+     */
+    private void updateFilterControls() {
+        if (proyectoActual == null) return;
+
         if (filterAssignedCombo != null) {
             filterAssignedCombo.getItems().clear();
-            // Añadir opción "Sin asignar"
+            // Añadir opción "Sin asignar" representada por null
             filterAssignedCombo.getItems().add(null);
-            // Añadir miembros del proyecto
-            filterAssignedCombo.getItems().addAll(proyecto.getMiembros());
+            // Añadir miembros del proyecto (si los hay)
+            filterAssignedCombo.getItems().addAll(proyectoActual.getMiembros());
             filterAssignedCombo.setValue(null);
-            filterAssignedCombo.setDisable(false);
+            filterAssignedCombo.setDisable(proyectoActual.getMiembros().isEmpty());
         }
-        
+
         if (filterTagCombo != null) {
             filterTagCombo.getItems().clear();
             // Obtener todas las etiquetas únicas de todas las tareas
-            List<Etiqueta> etiquetasUnicas = proyecto.getTareas().stream()
-                .flatMap(t -> t.getEtiquetas().stream())
-                .distinct()
-                .collect(Collectors.toList());
-            
+            List<Etiqueta> etiquetasUnicas = proyectoActual.getTareas().stream()
+                    .flatMap(t -> t.getEtiquetas().stream())
+                    .distinct()
+                    .collect(Collectors.toList());
+
             if (!etiquetasUnicas.isEmpty()) {
                 filterTagCombo.getItems().addAll(etiquetasUnicas);
             }
             filterTagCombo.setValue(null);
             filterTagCombo.setDisable(etiquetasUnicas.isEmpty());
         }
-        
+
         if (filterPriorityCombo != null) {
             filterPriorityCombo.setDisable(false);
             filterPriorityCombo.setValue(null);
@@ -603,8 +693,11 @@ public class ProjectBoardView {
                                 memberTable.getItems().remove(data);
                                 if (projectService != null) {
                                     projectService.eliminarMiembro(proyectoActual, data.getUsuario());
+                                            // Refrescar filtros tras eliminar miembro
+                                            updateFilterControls();
                                 } else {
                                     proyectoActual.eliminarMiembro(data.getUsuario());
+                                            updateFilterControls();
                                 }
                             }
                         });
@@ -674,8 +767,11 @@ public class ProjectBoardView {
                     memberTable.getItems().add(newMember);
                     if (projectService != null) {
                         projectService.agregarMiembro(proyectoActual, usuarioExistente);
+                                    // Refrescar filtros tras agregar miembro
+                                    updateFilterControls();
                     } else {
                         proyectoActual.agregarMiembro(usuarioExistente);
+                                    updateFilterControls();
                     }
                     emailField.clear();
                 }

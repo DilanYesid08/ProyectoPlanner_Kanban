@@ -2,6 +2,8 @@ package com.proyecto.kanban.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Representa una tarea dentro del sistema Kanban.
@@ -24,6 +26,9 @@ public class Tarea {
     private EstadoTarea estado;
     private List<Etiqueta> etiquetas;
     private Proyecto proyecto; // Referencia al proyecto al que pertenece la tarea
+    private final LocalDateTime fechaCreacion;
+    private LocalDateTime fechaCierre;
+    private LocalDateTime fechaInicio;
 
     /**
      * Constructor principal de Tarea.
@@ -49,7 +54,26 @@ public class Tarea {
         this.prioridad = prioridad;
         this.estado = estado;
         this.etiquetas = new ArrayList<>();
+        this.fechaCreacion = LocalDateTime.now();
     }
+
+    /**
+     * Constructor sobrecargado que acepta una lista inicial de etiquetas (agregación).
+     * No crea nuevas etiquetas internamente; recibe referencias externas y las añade
+     * usando {@link #agregarEtiqueta(Etiqueta)} para aplicar la lógica de deduplicación.
+     */
+    public Tarea(String titulo, String descripcion, Usuario asignadoA, FechaLimite fechaLimite,
+                 Prioridad prioridad, EstadoTarea estado, List<Etiqueta> etiquetasIniciales) {
+        this(titulo, descripcion, asignadoA, fechaLimite, prioridad, estado);
+        if (etiquetasIniciales != null) {
+            for (Etiqueta e : etiquetasIniciales) {
+                this.agregarEtiqueta(e);
+            }
+        }
+    }
+
+    /** Fecha y hora en que se creó la tarea. */
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
 
     // Getters simples
     public String getTitulo() { return titulo; }
@@ -62,14 +86,35 @@ public class Tarea {
     public Proyecto getProyecto() { return proyecto; }
     public void setProyecto(Proyecto proyecto) { this.proyecto = proyecto; }
 
-    /** Añade una etiqueta a la tarea. */
+    /** Añade una etiqueta a la tarea evitando duplicados por nombre (case-insensitive). */
     public void agregarEtiqueta(Etiqueta etiqueta) {
-        if (etiqueta != null) etiquetas.add(etiqueta);
+        if (etiqueta == null) return;
+        String nombreNueva = etiqueta.getNombre() != null ? etiqueta.getNombre().trim() : "";
+        // Evitar etiquetas duplicadas por nombre (case-insensitive)
+        boolean existe = etiquetas.stream().anyMatch(e -> {
+            String n = e.getNombre() != null ? e.getNombre().trim() : "";
+            return !n.isEmpty() && !nombreNueva.isEmpty() && n.equalsIgnoreCase(nombreNueva);
+        });
+        if (!existe) {
+            etiquetas.add(etiqueta);
+        }
     }
 
     /** Cambia el estado de la tarea (p.ej. PENDIENTE -> EN_PROGRESO -> COMPLETADA). */
     public void cambiarEstado(EstadoTarea nuevoEstado) {
-        if (nuevoEstado != null) this.estado = nuevoEstado;
+        if (nuevoEstado != null) {
+            this.estado = nuevoEstado;
+            // Registrar fecha de cierre cuando se marca como COMPLETADA
+            if (nuevoEstado == EstadoTarea.COMPLETADA) {
+                this.fechaCierre = LocalDateTime.now();
+            } else {
+                this.fechaCierre = null;
+            }
+            // Registrar fechaInicio la primera vez que pasa a EN_PROGRESO
+            if (nuevoEstado == EstadoTarea.EN_PROGRESO && this.fechaInicio == null) {
+                this.fechaInicio = LocalDateTime.now();
+            }
+        }
     }
 
     /** Asigna un usuario responsable a la tarea. */
@@ -102,6 +147,11 @@ public class Tarea {
         this.fechaLimite = fechaLimite;
     }
 
+    /** Fecha y hora en la que la tarea fue completada (si aplica). */
+    public LocalDateTime getFechaCierre() { return fechaCierre; }
+
+    /** Fecha y hora en la que la tarea pasó a EN_PROGRESO (si aplica). */
+    public LocalDateTime getFechaInicio() { return fechaInicio; }
         /** Modifica el título de la tarea. */
         public void setTitulo(String titulo) {
             if (titulo != null && !titulo.trim().isEmpty()) {
@@ -117,7 +167,8 @@ public class Tarea {
     public String toString() {
         String asignado = asignadoA != null ? asignadoA.getNombre() : "Sin asignar";
         String fechaStr = fechaLimite != null ? fechaLimite.toString() : "Sin fecha";
-        return "Tarea: " + titulo + " | Asignado a: " + asignado +
+        String creado = fechaCreacion != null ? fechaCreacion.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "-";
+        return "Tarea: " + titulo + " | Creada: " + creado + " | Asignado a: " + asignado +
                " | Prioridad: " + prioridad + " | Estado: " + estado +
                " | Fecha límite: " + fechaStr +
                " | Etiquetas: " + etiquetas;

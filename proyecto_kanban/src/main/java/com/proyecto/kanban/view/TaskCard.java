@@ -126,6 +126,10 @@ public class TaskCard extends VBox {
                     tarea.agregarEtiqueta(new Etiqueta(nombre, colorHex));
                 }
                 nuevaEtiqueta.clear();
+                // Notificar a la vista para que actualice filtros y vuelva a renderizar tarjetas
+                if (onTaskUpdated != null) {
+                    onTaskUpdated.run();
+                }
             }
         });
         
